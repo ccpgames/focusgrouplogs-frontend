@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <title>CCP Focus Group Logs</title>
+ <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+</head>
+<body>
+ <h1><a href="/">Focus Group Logs</a></h1>
+ <h4><a href="/{{ focus_group }}/">{% if focus_group == 'legacy' %}Legacy logs{% else %}Logs of the focus group discussion for #{{ focus_group }}{% endif %}</a></h4>
+ <hr />
+ {%- for log_day in log_days %}
+ <div class="logs">
+  {%- if focus_group == 'legacy' %}
+  <h2><a href="/legacy/{{ log_day.name }}/">{{ log_day.name }}</a></h2>
+  {%- else %}
+  <h2><a href="/{{ focus_group }}/{{ log_day.date.strftime('%Y-%m-%d')}}/">{{ log_day.date.strftime('%B %-d, %Y') }}</a></h2>
+  {%- endif %}
+  <ul>
+  {%- for log in log_day.logs %}
+   <li>
+    <div class="log_message{% if log.user.startswith('ccp_') %} ccp_message{% endif %}" id="{{ log.link }}">
+     <p>[{{ log.time }}] &lt;{{ log.user }}&gt; {{ log.message|safe }}</p>
+    </div>
+   </li>
+  {%- endfor %}
+  </ul>
+ </div>
+ {%- endfor %}
+<style type="text/css">
+{{ css }}
+</style>
+<script type="text/javascript">
+$('body').on('click','.log_message',function(e){
+  var current = e.target.parentElement.id;
+  window.history.replaceState("selected_log_message", "", "#"+current);
+  $('.log_message').each(function(){
+    var url = $(this).attr('id');
+    if (url == current)
+      $(this).addClass('selected');
+    else if ($(this).hasClass('selected') == true)
+      $(this).removeClass('selected');
+  });
+});
+$(document).ready(function(){
+  var path = window.location.href;
+  var current = path.substring(path.lastIndexOf('/')+2);
+  $('.log_message').each(function(){
+    var url = $(this).attr('id');
+    if (url == current)
+      $(this).addClass('selected');
+    else if ($(this).hasClass('selected') == true)
+      $(this).removeClass('selected');
+  });
+});
+</script>
+</body>
+</html>
