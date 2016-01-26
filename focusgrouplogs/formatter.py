@@ -79,7 +79,7 @@ def all_content(focus_group):
     return sorted(all_contents, key=lambda k: k["date"])
 
 
-def log_content(focus_group, log, adjusted=False):
+def log_content(focus_group, log):
     """Reads the log file and returns it in a dict with name, date and logs."""
 
     log_name = os.path.join(LOGDIR, focus_group, log)
