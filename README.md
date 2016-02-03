@@ -18,10 +18,10 @@ focusgrouplogs
 
 Additionally, for the datastore backend, you will need the following env vars set:
 
-`GCLOUD_DATASET_ID`: string, your google project ID
-`GOOGLE_APPLICATION_CREDENTIALS` filepath to your API credentials json file
-`FOCUGROUPLOGS_BACKEND`: set this to "datastore", default is "files"
-`TRANSITION_TO_DATASTORE`: set to "1" to enable a /migrate route to transition from files to datastore
+* `GCLOUD_DATASET_ID`: string, your google project ID
+* `GOOGLE_APPLICATION_CREDENTIALS` filepath to your API credentials json file
+* `FOCUGROUPLOGS_BACKEND`: set this to "datastore", default is "files"
+* `TRANSITION_TO_DATASTORE`: set to "1" to enable a /migrate route to transition from files to datastore
 
 
 ## Log format
