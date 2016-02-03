@@ -19,7 +19,7 @@
   {%- for log in log_day.logs %}
    <li>
     <div class="log_message{% if log.user.startswith('ccp_') %} ccp_message{% endif %}" id="{{ log.link }}">
-     <p>[{{ log.time }}] &lt;{{ log.user }}&gt; {{ log.message|safe }}</p>
+     <p>[{% if focus_group == 'legacy' %}{{ log.time.strftime('%Y-%m-%d %H:%M') }}{% else %}{{ log.time.strftime('%H:%M')}}{% endif %}] &lt;{{ log.user }}&gt; {{ log.message|safe }}</p>
     </div>
    </li>
   {%- endfor %}

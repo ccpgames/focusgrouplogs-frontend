@@ -23,14 +23,11 @@ app = Flask(__name__)
 cache = Cache(app, config={"CACHE_TYPE": "simple"})
 app.url_map.converters["regex"] = RegexConverter
 
-LOGDIR = os.environ.get("FOCUSGROUPLOGS_LOGDIR")
-FOCUS_GROUPS = list(sorted([
-    d for d in os.listdir(LOGDIR) if os.path.isdir(os.path.join(LOGDIR, d))
-]))
-
-# make legacy last..
-if "legacy" in FOCUS_GROUPS:
-    FOCUS_GROUPS.remove("legacy")
-    FOCUS_GROUPS.append("legacy")
-
 FocusGroupLog = namedtuple("FocusGroupLog", ("name", "date", "size"))
+
+LOGDIR = os.environ.get("FOCUSGROUPLOGS_LOGDIR")
+BACKEND = os.environ.get("FOCUGROUPLOGS_BACKEND", "files")
+FOCUS_GROUPS = os.environ.get(
+    "FOCUS_GROUPS",
+    "capitals tactical-destroyers legacy"
+).split()
