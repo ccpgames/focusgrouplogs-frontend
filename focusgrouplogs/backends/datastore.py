@@ -3,55 +3,27 @@
 
 from __future__ import unicode_literals
 
-import os
 from datetime import datetime
 from datetime import timedelta
 
-import googledatastore as datastore
-from googledatastore.helper import from_timestamp_usec
+from gcloud import datastore
 
 from focusgrouplogs import FocusGroupLog
 from focusgrouplogs.formatter import add_links
 
 
-datastore.set_options(
-    dataset=os.environ.get("PROJECT_ID", "eve-development-services"),
-)
+class FocusgroupLogClient(object):
+    @staticmethod
+    def get_client():
+        if not hasattr(FocusgroupLogClient, "_client"):
+            FocusgroupLogClient._client = datastore.Client()
+        return FocusgroupLogClient._client
 
 
-def query_datastore(query):
-    """Queries Google's datastore, translates googledatastore to python.
+def get_client():
+    """Returns the same gcloud.datastore.Client every time."""
 
-    Args:
-        query: a string literal, in GQL syntax
-
-    Returns:
-        an iterator of dicts with property name: value for each query match
-    """
-
-    req = datastore.RunQueryRequest()
-    req.gql_query.allow_literal = True
-    req.gql_query.query_string = query
-
-    value_types = ["string", "integer", "boolean", "list", "blob", "blob_key",
-                   "double"]
-    translations = [(val, lambda x: x) for val in value_types]
-    translations.insert(1, ("timestamp_microseconds", from_timestamp_usec))
-    for entity in datastore.run_query(req).batch.entity_result:
-        result = {}
-        for prop in entity.entity.property:
-            for value, translation in translations:
-                prop_value = getattr(prop.value, "{}_value".format(value))
-                if prop_value:
-                    if getattr(prop.value, "meaning") == 18:
-                        # for reasons~ if you query for only a datetime
-                        # property, you will receive integer with meaning 18
-                        # instead of timestamp_microseconds...
-                        result[prop.name] = from_timestamp_usec(prop_value)
-                    else:
-                        result[prop.name] = translation(prop_value)
-                    break
-        yield result
+    return FocusgroupLogClient.get_client()
 
 
 def all_content(focus_group, _add_links=True):
@@ -69,18 +41,20 @@ def log_content(focus_group, date, _add_links=True):
     _add_links = add_links if _add_links else lambda x: x
     start_day = datetime(*(int(x) for x in date.split("-")))
     end_day = start_day + timedelta(days=1)
-    query = (
-        "SELECT * FROM `#{channel}_focusgroup` WHERE `time` > DATETIME("
-        "'{start}T00:00:00Z') AND `time` < DATETIME('{end}T00:00:00Z')"
-    ).format(
-        channel=focus_group,
-        start=start_day.strftime("%Y-%m-%d"),
-        end=end_day.strftime("%Y-%m-%d"),
-    )
+
+    time_fmt = "%Y-%m-%dT00:00:00Z"
+    kind = "#{}_focusgroup".format(focus_group)
+    query = [
+        ("time", ">=", "DATETIME('{}')".format(start_day.strftime(time_fmt))),
+        ("time", "<", "DATETIME('{}')".format(end_day.strftime(time_fmt))),
+    ]
 
     results = {"date": start_day, "name": focus_group, "logs": []}
     already_linked = []
-    for res in query_datastore(query):
+
+    client = get_client()
+
+    for res in client.query(kind=kind, filters=query).fetch():
         this_link = res["time"].strftime("%Y-%m-%dT%H:%M:%S")
         link_extended = 0
         while this_link in already_linked:
@@ -101,9 +75,10 @@ def log_content(focus_group, date, _add_links=True):
 def log_metadata(focus_group):
     """Returns the metadata for the focus group's logs."""
 
-    query = "SELECT `time` FROM `#{}_focusgroup`".format(focus_group)
+    kind = "#{}_focusgroup".format(focus_group)
     metadata = {}
-    for res in query_datastore(query):
+    client = get_client()
+    for res in client.query(kind=kind, projection=("time",)).fetch():
         time = res['time']
         result_day = datetime(year=time.year, month=time.month, day=time.day)
         if result_day in metadata:
