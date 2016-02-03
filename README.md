@@ -11,6 +11,7 @@
 ```bash
 docker run -d --name=focusgrouplogs \
 -e FOCUSGROUPLOGS_LOGDIR=/data \
+-e FOCUS_GROUPS="capitals tactical-destroyers" \
 -v /data/focusgrouplogs:/data \
 -p 8080:8080 \
 focusgrouplogs
@@ -24,7 +25,26 @@ Additionally, for the datastore backend, you will need the following env vars se
 * `TRANSITION_TO_DATASTORE`: set to "1" to enable a /migrate route to transition from files to datastore
 
 
-## Log format
+## Caching
+
+Setting the `FOCUSGROUPLOGS_REDIS` env var to "1" will enable redis caching.
+By default it will use "redis:6379/0" for a host and database. Use the
+`FOCUSGROUPLOGS_REDIS_URL` env var to change that to suit your needs.
+
+If you want to use redis caching in dev, run the following before your start
+your frontend container
+
+```bash
+docker run -d --name=focusgrouplogs-redis \
+-p 6379:6379 \
+redis:latest
+```
+
+Then add `--link=focusgrouplogs-redis:redis` to your run args for the frontend
+container, and use `-e FOCUSGROUPLOGS_REDIS=1` to enable using the redis cache.
+
+
+## Log format (files backend)
 
 From the `FOCUSGROUPLOGS_LOGDIR` root, there are folders per focus group. The
 `legacy` folder has some special handling due to having inconsistent names and
@@ -40,20 +60,12 @@ Each entry in the log files are in the following format:
 
 ## The future
 
-I want to get this off of files/filesystems as soon as possible. The data is
-perfect for storing as key/value, and [google gives us one to use](https://cloud.google.com/datastore/docs/concepts/overview).
-Need to update the feeder container to use this first, and make those changes
-in lockstep.
-
 The cache times on the file reads are probably too short, but for now I'd
 rather err on the side of freshness.
 
 Need to come up with a better view for the main page. Would like to have each
 month grouped together with a [+]/[-] button to expand/collaspe the month.
 Currently it's not too bad, but eventually it's going to be a really long page.
-
-Will change the cache type to redis someday, but not until after the filesystem
-change, since that locks the frontend deployment to a single node anyway.
 
 
 ## Get involved!

@@ -20,8 +20,20 @@ class RegexConverter(BaseConverter):
 
 
 app = Flask(__name__)
-cache = Cache(app, config={"CACHE_TYPE": "simple"})
 app.url_map.converters["regex"] = RegexConverter
+
+if os.environ.get("FOCUSGROUPLOGS_REDIS"):
+    cache = Cache(app, config={
+        "CACHE_TYPE": "redis",
+        "CACHE_REDIS_URL": "redis://{}".format(
+            os.environ.get("FOCUSGROUPLOGS_REDIS_URL", "redis:6379/0")
+        ),
+        "CACHE_DEFAULT_TIMEOUT": 3600,
+        "CACHE_KEY_PREFIX": "focusgrouplogs.",
+    })
+else:
+    cache = Cache(app, config={"CACHE_TYPE": "simple"})
+
 
 FocusGroupLog = namedtuple("FocusGroupLog", ("name", "date", "size"))
 
