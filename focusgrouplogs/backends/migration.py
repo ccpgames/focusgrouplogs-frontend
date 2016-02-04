@@ -3,7 +3,9 @@
 
 from __future__ import unicode_literals
 
+from time import sleep
 from datetime import datetime
+from datetime import timedelta
 
 from gcloud import datastore
 
@@ -26,6 +28,18 @@ def get_entity(channel, speaker, message, time=None):
     entity["time"] = time
 
     return entity
+
+
+def _within(a, b, span=60):
+    """Returns boolean of `a` being within `span` seconds of `b`."""
+
+    # b/c TypeError: can't subtract offset-naive and offset-aware datetimes
+    if a.tzinfo:
+        a = (a + a.tzinfo.utcoffset(a)).replace(tzinfo=None)
+    if b.tzinfo:
+        b = (b + b.tzinfo.utcoffset(b)).replace(tzinfo=None)
+
+    return b - timedelta(seconds=span) < a < b + timedelta(seconds=span)
 
 
 def transition_to_datastore():
@@ -60,7 +74,7 @@ def transition_to_datastore():
                         log["time"].split("M")[0],
                         "%Y-%m-%d %H:%M:%S",
                     )
-                    if "capitals" in log["name"]:
+                    if "capitals" in day["name"]:
                         focus_group_name = "capitals"
                     else:
                         focus_group_name = "tactical-destroyers"
@@ -73,7 +87,7 @@ def transition_to_datastore():
                 for datastore_log in datastore_logs:
                     if datastore_log["user"] == log["user"] and \
                        datastore_log["message"] == log["message"] and \
-                       datastore_log["time"] == timestamp:
+                       _within(datastore_log["time"], timestamp):
                         break
                 else:
                     todays_entities.append(get_entity(
@@ -83,7 +97,14 @@ def transition_to_datastore():
                         timestamp,
                     ))
 
-            client.put_multi(todays_entities)
-            yield "data: {} records uploaded\n\n".format(len(todays_entities))
-
+            while True:
+                try:
+                    client.put_multi(todays_entities)
+                except Exception as error:
+                    yield "data: problem uploading: {}\n\n".format(error)
+                    for _ in range(30):
+                        sleep(1)
+                else:
+                    break
+            yield "data: {} records sent\n\n".format(len(todays_entities))
         yield "data: finished moving {} to datastore\n\n".format(focus_group)
