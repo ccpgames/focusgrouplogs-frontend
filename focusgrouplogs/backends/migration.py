@@ -3,12 +3,14 @@
 
 from __future__ import unicode_literals
 
-import logging
 from datetime import datetime
+
+from gcloud import datastore
 
 from focusgrouplogs import FOCUS_GROUPS
 from focusgrouplogs.backends import files
 from focusgrouplogs.backends.datastore import get_client
+from focusgrouplogs.backends.datastore import all_content
 
 
 def get_entity(channel, speaker, message, time=None):
@@ -20,7 +22,7 @@ def get_entity(channel, speaker, message, time=None):
     client = get_client()
     entity = datastore.Entity(client.key("#{}_focusgroup".format(channel)))
     entity["speaker"] = speaker
-    entity["messsage"] = messsage
+    entity["message"] = message
     entity["time"] = time
 
     return entity
@@ -36,7 +38,7 @@ def transition_to_datastore():
 
     for focus_group in FOCUS_GROUPS:
         yield "data: transitioning {} to datastore\n\n".format(focus_group)
-        in_datastore = datastore.all_content(focus_group, _add_links=False)
+        in_datastore = all_content(focus_group, _add_links=False)
         for day in files.all_content(focus_group, _add_links=False):
             datastore_day = {}
             ents = []  # today's entities
