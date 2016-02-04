@@ -4,20 +4,14 @@
 import os
 import sys
 import traceback
-from flask import abort
-from flask import Response
 from flask import render_template
 
 from focusgrouplogs import app
 from focusgrouplogs import cache
 from focusgrouplogs import FOCUS_GROUPS
-from focusgrouplogs import BACKEND
-
-from focusgrouplogs.backends import backends
-from focusgrouplogs.backends import migration
-
-db = backends[BACKEND]
-TRANSITION_HAS_RUN = False
+from focusgrouplogs.datastore import all_content
+from focusgrouplogs.datastore import log_content
+from focusgrouplogs.datastore import log_metadata
 
 
 @cache.cached(timeout=None)
@@ -36,9 +30,9 @@ def group_get(group, date):
     """Displays the most recent day for a group (or specific)."""
 
     if date is None:
-        group_logs = db.all_content(group)
+        group_logs = all_content(group)
     else:
-        group_logs = [db.log_content(group, date)]
+        group_logs = [log_content(group, date)]
 
     return render_template(
         "logs.html",
@@ -55,31 +49,9 @@ def main_index():
 
     return render_template(
         "index.html",
-        groups=[{"name": f, "logs": db.log_metadata(f)} for f in FOCUS_GROUPS],
+        groups=[{"name": f, "logs": log_metadata(f)} for f in FOCUS_GROUPS],
         css=get_style(),
     )
-
-
-@app.route("/migrate")
-def migrate_template():
-    global TRANSITION_HAS_RUN
-    if os.environ.get("TRANSITION_TO_DATASTORE") and not TRANSITION_HAS_RUN:
-        return render_template("stream.html")
-    else:
-        abort(404)
-
-
-@app.route("/do_migrate")
-def migrate_from_files():
-    global TRANSITION_HAS_RUN
-    if os.environ.get("TRANSITION_TO_DATASTORE") and not TRANSITION_HAS_RUN:
-        TRANSITION_HAS_RUN = True
-        return Response(
-            migration.transition_to_datastore(),
-            mimetype="text/event-stream",
-        )
-    else:
-        abort(404)
 
 
 def traceback_formatter(excpt, value, tback):

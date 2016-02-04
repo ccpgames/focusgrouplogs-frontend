@@ -6,20 +6,16 @@
 </head>
 <body>
  <h1><a href="/">Focus Group Logs</a></h1>
- <h4>{% if focus_group == 'legacy' %}Legacy logs{% else %}Logs of the focus group discussion for #{{ focus_group }}{% endif %}</h4>
+ <h4>Logs of the focus group discussion for #{{ focus_group }}</h4>
  <hr />
  {%- for log_day in log_days %}
  <div class="logs">
-  {%- if focus_group == 'legacy' %}
-  <h2><a href="/legacy/{{ log_day.name }}/">{{ log_day.name }}</a></h2>
-  {%- else %}
   <h2><a href="/{{ focus_group }}/{{ log_day.date.strftime('%Y-%m-%d')}}/">{{ log_day.date.strftime('%B %-d, %Y') }}</a></h2>
-  {%- endif %}
   <ul>
   {%- for log in log_day.logs %}
    <li>
     <div class="log_message{% if log.user.startswith('ccp_') %} ccp_message{% endif %}" id="{{ log.link }}">
-     <p>[{% if focus_group == 'legacy' %}{{ log.time.strftime('%Y-%m-%d %H:%M') }}{% else %}{{ log.time.strftime('%H:%M')}}{% endif %}] &lt;{{ log.user }}&gt; {{ log.message|safe }}</p>
+     <p>[{{ log.time.strftime('%H:%M')}}] &lt;{{ log.user }}&gt; {{ log.message|safe }}</p>
     </div>
    </li>
   {%- endfor %}

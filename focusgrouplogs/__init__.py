@@ -10,7 +10,7 @@ from werkzeug.routing import BaseConverter
 
 __author__ = "Adam Talsma"
 __author_email__ = "se-adam.talsma@ccpgames.com"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 class RegexConverter(BaseConverter):
@@ -37,9 +37,7 @@ else:
 
 FocusGroupLog = namedtuple("FocusGroupLog", ("name", "date", "size"))
 
-LOGDIR = os.environ.get("FOCUSGROUPLOGS_LOGDIR")
-BACKEND = os.environ.get("FOCUGROUPLOGS_BACKEND", "files")
 FOCUS_GROUPS = os.environ.get(
     "FOCUS_GROUPS",
-    "capitals tactical-destroyers legacy"
+    "capitals tactical-destroyers"
 ).split()

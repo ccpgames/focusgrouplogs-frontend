@@ -10,19 +10,12 @@
 
 ```bash
 docker run -d --name=focusgrouplogs \
--e FOCUSGROUPLOGS_LOGDIR=/data \
--e FOCUS_GROUPS="capitals tactical-destroyers" \
+-e GCLOUD_DATASET_ID="your-google-project-ID" \
+-e GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/credentials.json" \
 -v /data/focusgrouplogs:/data \
 -p 8080:8080 \
 focusgrouplogs
 ```
-
-Additionally, for the datastore backend, you will need the following env vars set:
-
-* `GCLOUD_DATASET_ID`: string, your google project ID
-* `GOOGLE_APPLICATION_CREDENTIALS` filepath to your API credentials json file
-* `FOCUGROUPLOGS_BACKEND`: set this to "datastore", default is "files"
-* `TRANSITION_TO_DATASTORE`: set to "1" to enable a /migrate route to transition from files to datastore
 
 
 ## Caching
@@ -40,22 +33,15 @@ docker run -d --name=focusgrouplogs-redis \
 redis:latest
 ```
 
-Then add `--link=focusgrouplogs-redis:redis` to your run args for the frontend
-container, and use `-e FOCUSGROUPLOGS_REDIS=1` to enable using the redis cache.
+Also be sure to add `--link=focusgrouplogs-redis:redis` to your run args for
+the frontend container.
 
 
-## Log format (files backend)
+## Debugging
 
-From the `FOCUSGROUPLOGS_LOGDIR` root, there are folders per focus group. The
-`legacy` folder has some special handling due to having inconsistent names and
-having log messages spanning multiple days.
-
-In each folder down from the logdir root it is expected that there is a list of
-`.txt` files following the convention: `YYYY-MM-DD.focusgroupname.txt`.
-
-Each entry in the log files are in the following format:
-
-`[YYYY-MM-DD HH:MM:SS] <irc_username> message ...`
+To debug this container for local dev work, add the command
+`/venv/bin/python /app/focusgrouplogs/web.py` to your docker run command. This
+will run flask in debug, you can find the PIN via `docker logs focusgrouplogs`.
 
 
 ## The future
@@ -63,8 +49,6 @@ Each entry in the log files are in the following format:
 Need to come up with a better view for the main page. Would like to have each
 month grouped together with a [+]/[-] button to expand/collaspe the month.
 Currently it's not too bad, but eventually it's going to be a really long page.
-
-I'll probably remove the datastore migration and files backend after a while.
 
 Need to come up with a better way to show all logs from a group. Probably do some
 fancy infinite loading page, make a JSON response for the group/date routes.

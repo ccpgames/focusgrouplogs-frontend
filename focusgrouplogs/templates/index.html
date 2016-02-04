@@ -15,11 +15,7 @@
    {%- for log in group.logs %}
    <li>
     <div class="focus_group_log">
-     {%- if group.name == 'legacy' %}
-     <a href="/{{ group.name }}/{{ log.name }}/">{{ log.name }} ({{ log.size }})</a>
-     {%- else %}
      <a href="/{{ group.name }}/{{ log.date.strftime('%Y-%m-%d') }}/">{{ log.date.strftime('%B %-d, %Y') }} ({{ log.size }})</a>
-     {%- endif %}
     </div>
    </li>
    {%- endfor %}
