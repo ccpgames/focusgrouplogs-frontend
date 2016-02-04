@@ -11,7 +11,7 @@
  {%- for group in groups %}
  <div class="group">
   <ul>
-   <h2><a href="/{{ group.name }}/">{{ group.name.title() }}</a></h2>
+   <h2>{{ group.name.title() }}</h2>
    {%- for log in group.logs %}
    <li>
     <div class="focus_group_log">
@@ -29,7 +29,7 @@
 <style type="text/css">
 {{ css }}
 ul{
-  width: 30%;
+  width: 48%;
   float: left;
   padding: 0.5em;
 }

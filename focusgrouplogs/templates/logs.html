@@ -6,7 +6,7 @@
 </head>
 <body>
  <h1><a href="/">Focus Group Logs</a></h1>
- <h4><a href="/{{ focus_group }}/">{% if focus_group == 'legacy' %}Legacy logs{% else %}Logs of the focus group discussion for #{{ focus_group }}{% endif %}</a></h4>
+ <h4>{% if focus_group == 'legacy' %}Legacy logs{% else %}Logs of the focus group discussion for #{{ focus_group }}{% endif %}</h4>
  <hr />
  {%- for log_day in log_days %}
  <div class="logs">

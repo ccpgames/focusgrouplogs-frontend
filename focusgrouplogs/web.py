@@ -31,10 +31,8 @@ def get_style():
 
 @app.route("/<regex('({})'):group>/<date>/".format("|".join(FOCUS_GROUPS)),
            methods=["GET"])
-@app.route("/<regex('({})'):group>/".format("|".join(FOCUS_GROUPS)),
-           methods=["GET"])
 @cache.memoize(timeout=60)
-def group_get(group, date=None):
+def group_get(group, date):
     """Displays the most recent day for a group (or specific)."""
 
     if date is None:
