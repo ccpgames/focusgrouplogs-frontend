@@ -60,12 +60,14 @@ Each entry in the log files are in the following format:
 
 ## The future
 
-The cache times on the file reads are probably too short, but for now I'd
-rather err on the side of freshness.
-
 Need to come up with a better view for the main page. Would like to have each
 month grouped together with a [+]/[-] button to expand/collaspe the month.
 Currently it's not too bad, but eventually it's going to be a really long page.
+
+I'll probably remove the datastore migration and files backend after a while.
+
+Need to come up with a better way to show all logs from a group. Probably do some
+fancy infinite loading page, make a JSON response for the group/date routes.
 
 
 ## Get involved!
