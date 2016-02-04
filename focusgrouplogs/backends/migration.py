@@ -42,13 +42,32 @@ def _within(a, b, span=60):
     return b - timedelta(seconds=span) < a < b + timedelta(seconds=span)
 
 
+def upload_to_google(entities):
+    """Uploads entities to the google datastore."""
+
+    if not entities:
+        raise StopIteration
+
+    client = get_client()
+
+    while True:
+        try:
+            client.put_multi(entities)
+        except Exception as error:
+            yield "data: problem uploading: {}\n\n".format(error)
+            for _ in range(30):
+                sleep(1)
+        else:
+            break
+
+    yield "data: {} records sent\n\n".format(len(entities))
+
+
 def transition_to_datastore():
     """Transition from file backend to datastore backend.
 
     Checks if the log message has already been transitioned.
     """
-
-    client = get_client()
 
     for focus_group in FOCUS_GROUPS:
         yield "data: transitioning {} to datastore\n\n".format(focus_group)
@@ -97,14 +116,12 @@ def transition_to_datastore():
                         timestamp,
                     ))
 
-            while True:
-                try:
-                    client.put_multi(todays_entities)
-                except Exception as error:
-                    yield "data: problem uploading: {}\n\n".format(error)
-                    for _ in range(30):
-                        sleep(1)
-                else:
-                    break
-            yield "data: {} records sent\n\n".format(len(todays_entities))
+                if len(todays_entities) > 498:
+                    for msg in upload_to_google(todays_entities):
+                        yield msg
+                    todays_entities = []
+
+            for msg in upload_to_google(todays_entities):
+                yield msg
+
         yield "data: finished moving {} to datastore\n\n".format(focus_group)
