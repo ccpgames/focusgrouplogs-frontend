@@ -99,7 +99,10 @@ def transition_to_datastore():
                         focus_group_name = "tactical-destroyers"
                 else:
                     ts = [day["date"].year, day["date"].month, day["date"].day]
-                    ts.extend(int(x) for x in log["time"].split(":"))
+                    ts.extend(
+                        int(x) for x in
+                        log["link"].split("T")[1].split("M")[0].split(":")
+                    )
                     timestamp = datetime(*ts)
                     focus_group_name = focus_group
 

@@ -65,8 +65,7 @@ def log_content(focus_group, date, _add_links=True):
             "time": res["time"],
         })
 
-    results["logs"] = list(reversed(sorted(results["logs"],
-                                           key=lambda k: k["time"])))
+    results["logs"] = sorted(results["logs"], key=lambda k: k["time"])
     return results
 
 
