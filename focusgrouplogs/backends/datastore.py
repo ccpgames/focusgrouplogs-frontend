@@ -26,6 +26,12 @@ def get_client():
     return FocusgroupLogClient.get_client()
 
 
+def make_time(timestamp):
+    """Converts a long microsecond timestamp to a datetime object."""
+
+    return datetime.utcfromtimestamp(0) + timedelta(microseconds=timestamp)
+
+
 def all_content(focus_group, _add_links=True):
     """Returns all messages for the focus group."""
 
@@ -55,7 +61,8 @@ def log_content(focus_group, date, _add_links=True):
     client = get_client()
 
     for res in client.query(kind=kind, filters=query).fetch():
-        this_link = res["time"].strftime("%Y-%m-%dT%H:%M:%S")
+        res_time = make_time(res["time"])
+        this_link = res_time.strftime("%Y-%m-%dT%H:%M:%S")
         link_extended = 0
         while this_link in already_linked:
             link_extended += 1
@@ -65,7 +72,7 @@ def log_content(focus_group, date, _add_links=True):
             "message": _add_links(res["message"]),
             "user": res["speaker"],
             "link": this_link,
-            "time": res["time"],
+            "time": res_time,
         })
 
     results["logs"] = list(sorted(results["logs"], key=lambda k: k["time"]))
@@ -79,7 +86,7 @@ def log_metadata(focus_group):
     metadata = {}
     client = get_client()
     for res in client.query(kind=kind, projection=("time",)).fetch():
-        time = res['time']
+        time = make_time(res['time'])
         result_day = datetime(year=time.year, month=time.month, day=time.day)
         if result_day in metadata:
             metadata[result_day] += 1

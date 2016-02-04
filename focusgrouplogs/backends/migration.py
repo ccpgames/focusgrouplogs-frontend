@@ -9,8 +9,8 @@ from gcloud import datastore
 
 from focusgrouplogs import FOCUS_GROUPS
 from focusgrouplogs.backends import files
-from focusgrouplogs.backends.datastore import get_client
 from focusgrouplogs.backends.datastore import all_content
+from focusgrouplogs.backends.datastore import get_client
 
 
 def get_entity(channel, speaker, message, time=None):

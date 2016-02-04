@@ -11,5 +11,4 @@ max-requests = 1000
 enable-threads = true
 virtualenv = /venv
 threaded-logger = true
-logger = syslog:
 log-format = %(addr) - %(user) [%(ltime)] "%(method) %(uri) %(proto)" %(status) %(size) "%(referer)" "%(uagent)"
