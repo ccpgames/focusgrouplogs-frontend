@@ -38,15 +38,22 @@ def transition_to_datastore():
 
     for focus_group in FOCUS_GROUPS:
         yield "data: transitioning {} to datastore\n\n".format(focus_group)
+
         in_datastore = all_content(focus_group, _add_links=False)
+        if focus_group == "legacy":
+            for group in ("capitals", "tactical-destroyers"):
+                in_datastore.extend(all_content(group, _add_links=False))
+
         for day in files.all_content(focus_group, _add_links=False):
-            datastore_day = {}
-            ents = []  # today's entities
+            datastore_logs = []
             for ds_day in in_datastore:
-                if ds_day["date"] == day["date"]:
-                    datastore_day = ds_day
+                if focus_group == "legacy":
+                    datastore_logs.extend(ds_day["logs"])
+                elif ds_day["date"] == day["date"]:
+                    datastore_logs = ds_day["logs"]
                     break
 
+            todays_entities = []
             for log in day["logs"]:
                 if focus_group == "legacy":
                     timestamp = datetime.strptime(
@@ -63,20 +70,20 @@ def transition_to_datastore():
                     timestamp = datetime(*ts)
                     focus_group_name = focus_group
 
-                for datastore_log in datastore_day.get("logs", []):
+                for datastore_log in datastore_logs:
                     if datastore_log["user"] == log["user"] and \
                        datastore_log["message"] == log["message"] and \
                        datastore_log["time"] == timestamp:
                         break
                 else:
-                    ents.append(get_entity(
+                    todays_entities.append(get_entity(
                         focus_group_name,
                         log["user"],
                         log["message"],
                         timestamp,
                     ))
 
-            client.put_multi(ents)
-            yield "data: sent {} records to datastore\n\n".format(len(ents))
+            client.put_multi(todays_entities)
+            yield "data: {} records uploaded\n\n".format(len(todays_entities))
 
         yield "data: finished moving {} to datastore\n\n".format(focus_group)
