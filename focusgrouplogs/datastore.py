@@ -51,7 +51,7 @@ def log_content(focus_group, date, _add_links=True):
     client = get_client()
 
     for res in client.query(kind=kind, filters=query).fetch():
-        this_link = res["time"].strftime("%Y-%m-%dT%H:%M:%S")
+        this_link = res["time"].strftime("%H:%M:%S")
         link_extended = 0
         while this_link in already_linked:
             link_extended += 1
