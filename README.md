@@ -46,10 +46,6 @@ will run flask in debug, you can find the PIN via `docker logs focusgrouplogs`.
 
 ## The future
 
-Need to come up with a better view for the main page. Would like to have each
-month grouped together with a [+]/[-] button to expand/collaspe the month.
-Currently it's not too bad, but eventually it's going to be a really long page.
-
 Need to come up with a better way to show all logs from a group. Probably do some
 fancy infinite loading page, make a JSON response for the group/date routes.
 
