@@ -35,6 +35,8 @@ a{
 p{
   margin: 0;
   padding: 0.1em;
+  color: #5C5C5C;
+  font-family: Helvetica, Verdana, sans-serif;
 }
 hr{
   border-color: #ccc;

@@ -2,6 +2,29 @@
 <html lang="en">
 <head>
  <title>CCP Focus Group Logs</title>
+ <style type="text/css">
+ {{ css }}
+ ul{
+   padding: 0.5em;
+   color: #5c5c5c;
+ }
+ li a{
+   display: block;
+ }
+ ul.hidden{
+   display: none;
+ }
+ div.group{
+   width: 48%;
+   float: left;
+ }
+ .toggle{
+   clear: left;
+   font-size: 0.85em;
+   padding-top: 0.5em;
+ }
+ </style>
+ <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 </head>
 <body>
  <h1><a href="/">Focus Group Logs</a></h1>
@@ -10,28 +33,38 @@
  <hr />
  {%- for group in groups %}
  <div class="group">
-  <ul>
-   <h2>{{ group.name.title() }}</h2>
-   {%- for log in group.logs %}
-   <li>
-    <div class="focus_group_log">
-     <a href="/{{ group.name }}/{{ log.date.strftime('%Y-%m-%d') }}/">{{ log.date.strftime('%B %-d, %Y') }} ({{ log.size }})</a>
-    </div>
-   </li>
-   {%- endfor %}
+  <h2>{{ group.name.title() }}</h2>
+  {%- set current_month = None %}
+  {%- for log in group.logs %}
+  {%- if current_month == None %}
+  {%- set current_month = log.date.month %}
+  <p class="toggle">[-] {{ log.date.strftime('%B %Y') }}</p>
+  <ul class="month">
+  {%- elif current_month != log.date.month %}
+  {%- set current_month = log.date.month %}
+  </ul>
+  <p class="toggle">[+] {{ log.date.strftime('%B %Y') }}</p>
+  <ul class="month hidden">
+  {%- endif %}
+   <li><a href="/{{ group.name }}/{{ log.date.strftime('%Y-%m-%d') }}/">{{ log.date.strftime('%B %-d, %Y') }} ({{ log.size }})</a></li>
+  {%- endfor %}
   </ul>
  </div>
  {%- endfor %}
-<style type="text/css">
-{{ css }}
-ul{
-  width: 48%;
-  float: left;
-  padding: 0.5em;
-}
-li a{
-  display: block;
-}
-</style>
+<script>
+$(".toggle").each(function() {
+  $(this).click(function () {
+    if ($(this).next(".month").is(":hidden") ) {
+      $(this).next(".month").slideDown("slow", function() {
+        this.previousElementSibling.textContent = this.previousElementSibling.textContent.replace('[+]','[-]');
+    });
+    } else {
+      $(this).next(".month").slideUp("slow", function() {
+        this.previousElementSibling.textContent = this.previousElementSibling.textContent.replace('[-]','[+]');
+      });
+    }
+  });
+});
+</script>
 </body>
 </html>
