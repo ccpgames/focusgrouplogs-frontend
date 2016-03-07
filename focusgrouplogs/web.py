@@ -14,7 +14,7 @@ from focusgrouplogs.datastore import log_content
 from focusgrouplogs.datastore import log_metadata
 
 
-@cache.cached(timeout=None)
+@cache.cached(timeout=None, key_prefix="inline-css")
 def get_style():
     """Reads and returns the inline css styling."""
 
