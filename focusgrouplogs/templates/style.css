@@ -54,7 +54,7 @@ li{
 li a:hover, div.log_message:hover{
   background: #f6f6f6;
 }
-div.ccp_message{
+.ccp_message{
   color: blue;
 }
 div.selected{
