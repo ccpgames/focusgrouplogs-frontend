@@ -7,7 +7,6 @@
  <style type="text/css">
  {{ css }}
  ul{
-   padding: 0.5em;
    color: #5c5c5c;
  }
  li a{
@@ -17,9 +16,9 @@
    display: none;
  }
  div.group{
-   width: 25%;
+   width: calc(20% - 4em);
    float: left;
-   padding-bottom: 2em;
+   padding: 1em;
  }
  .toggle{
    clear: left;
@@ -38,14 +37,15 @@
  {%- for group in groups %}
  <div class="group">
   <h2>{{ group.name.title() }}</h2>
-  {%- set current_month = None %}
+  {#- fucking jinja broke their scoping in 2.9, now we have to abuse mutability #}
+  {%- set current_month = [None] %}
   {%- for log in group.logs %}
-  {%- if current_month == None %}
-  {%- set current_month = log.date.month %}
+  {%- if current_month == [None] %}
+  {%- set _ = current_month.append(log.date.month) %}
   <p class="toggle">[-] {{ log.date.strftime('%B %Y') }}</p>
   <ul class="month">
-  {%- elif current_month != log.date.month %}
-  {%- set current_month = log.date.month %}
+  {%- elif current_month[-1] != log.date.month %}
+  {%- set _ = current_month.append(log.date.month) %}
   </ul>
   <p class="toggle">[+] {{ log.date.strftime('%B %Y') }}</p>
   <ul class="month hidden">
