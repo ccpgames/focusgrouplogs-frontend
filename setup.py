@@ -35,7 +35,11 @@ setup(
     url="https://github.com/ccpgames/focusgrouplogs/",
     download_url="https://github.com/ccpgames/focusgrouplogs/",
     entry_points={"paste.app_factory": ["main = focusgrouplogs.web:paste"]},
-    install_requires=["Flask>=0.10.0", "flask-cache", "gcloud != 0.10.0"],
+    install_requires=[
+        "Flask>=0.10.0",
+        "flask-cache-cassandra",
+        "gcloud != 0.10.0",
+    ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
