@@ -5,6 +5,7 @@ import os
 import sys
 import traceback
 from flask import render_template
+from flask import Response
 
 from focusgrouplogs import app
 from focusgrouplogs import cache
@@ -42,7 +43,7 @@ def group_get(group, date):
     )
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 @cache.cached(timeout=3600)
 def main_index():
     """Displays links to the focus groups, fairly static."""
@@ -52,6 +53,13 @@ def main_index():
         groups=[{"name": f, "logs": log_metadata(f)} for f in FOCUS_GROUPS],
         css=get_style(),
     )
+
+
+@app.route("/ping", methods=["GET"])
+def ping_response():
+    """Return a static 200 OK response."""
+
+    return Response("ok", status=200)
 
 
 def traceback_formatter(excpt, value, tback):
